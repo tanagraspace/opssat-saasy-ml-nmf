@@ -340,7 +340,7 @@ public class NanoSatMOConnectorImpl extends NMFProvider {
             cap.setSupportedCapabilities(oldCapabilities.get(i).getSupportedCapabilities());
 
             try {
-                final int bestIndex = AppsLauncherManager.getBestIPCServiceAddressIndex(addresses);
+                final int bestIndex = HelperCommon.getBestIPCServiceAddressIndex(addresses);
 
                 // Select only the best address for IPC
                 AddressDetailsList newAddresses = new AddressDetailsList();
