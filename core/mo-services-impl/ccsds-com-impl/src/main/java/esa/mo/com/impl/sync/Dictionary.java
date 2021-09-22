@@ -57,14 +57,17 @@ public class Dictionary {
         this.fastIDreverse.put(wordId, word);
     }
 
-    private Integer addNewWord(final String word) {
+    private Integer addNewWord(final String word) throws IllegalArgumentException {
+        if(word == null) {
+            throw new IllegalArgumentException("Word can't be null!");
+        }
         final int wordId = uniqueId.incrementAndGet();
         this.fastID.put(word, wordId);
         this.fastIDreverse.put(wordId, word);
         return wordId;
     }
 
-    public synchronized Integer getWordId(final String word) {
+    public synchronized Integer getWordId(final String word) throws IllegalArgumentException{
         final Integer id = this.fastID.get(word);
         return (id == null) ? this.addNewWord(word) : id;
     }
