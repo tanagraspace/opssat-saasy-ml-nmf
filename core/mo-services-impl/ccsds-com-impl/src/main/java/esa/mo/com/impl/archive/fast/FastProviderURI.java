@@ -128,13 +128,13 @@ public class FastProviderURI {
         return (id == null) ? this.addNewProviderURI(providerURI.getValue()) : id;
     }
     
-    public synchronized URI getProviderURI(final Integer id) throws Exception {
-        final URI providerURI = new URI(this.fastIDreverse.get(id));
+    public synchronized URI getProviderURI(final Integer id) throws IllegalArgumentException {
+        final String providerURI = this.fastIDreverse.get(id);
 
         if (providerURI == null) {
-            throw new Exception();
+            throw new IllegalArgumentException("Provider URI for id " + id + " is unknown");
         }
 
-        return providerURI;
+        return new URI(providerURI);
     }
 }

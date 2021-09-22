@@ -153,11 +153,11 @@ public class FastDomain {
         return ids;
     }
 
-    public synchronized IdentifierList getDomain(final Integer id) throws Exception {
+    public synchronized IdentifierList getDomain(final Integer id) throws IllegalArgumentException {
         final IdentifierList domain = this.fastIDreverse.get(id);
 
         if (domain == null) {
-            throw new Exception();
+            throw new IllegalArgumentException("Domain for id " + id + " is unknown");
         }
 
         return domain;

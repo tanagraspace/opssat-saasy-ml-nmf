@@ -163,11 +163,11 @@ public class FastObjectType {
         return ids;
     }
 
-    public synchronized ObjectType getObjectType(final Integer id) throws Exception {
+    public synchronized ObjectType getObjectType(final Integer id) throws IllegalArgumentException {
         final Long objectType = this.fastIDreverse.get(id);
 
         if (objectType == null) {
-            throw new Exception();
+            throw new IllegalArgumentException("Object type for id " + id + " is unknown");
         }
 
         return HelperCOM.objectTypeId2objectType(objectType);

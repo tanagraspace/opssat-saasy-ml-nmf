@@ -116,11 +116,11 @@ public class FastNetwork {
         return (id == null) ? this.addNewNetwork(network.getValue()) : id;
     }
 
-    public synchronized Identifier getNetwork(final Integer id) throws Exception {
+    public synchronized Identifier getNetwork(final Integer id) throws IllegalArgumentException {
         final String network = this.fastIDreverse.get(id);
 
         if (network == null) {
-            throw new Exception();
+            throw new IllegalArgumentException("Network for id " + id + " is unknown");
         }
 
         return new Identifier(network);
