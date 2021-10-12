@@ -31,13 +31,9 @@ import org.ccsds.moims.mo.com.structures.ObjectId;
 import org.ccsds.moims.mo.com.structures.ObjectKey;
 import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALInteractionException;
-import org.ccsds.moims.mo.mal.structures.EntityKey;
-import org.ccsds.moims.mo.mal.structures.EntityKeyList;
-import org.ccsds.moims.mo.mal.structures.EntityRequest;
-import org.ccsds.moims.mo.mal.structures.EntityRequestList;
+import org.ccsds.moims.mo.mal.helpertools.connections.ConnectionConsumer;
 import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.IdentifierList;
-import org.ccsds.moims.mo.mal.structures.Subscription;
 import org.ccsds.moims.mo.mc.check.CheckHelper;
 
 /**
@@ -127,7 +123,8 @@ public class CheckLinkMonitorManager {
      */
     private synchronized void registerForCheckTranisitionEvents() {
         try {
-            eventService.monitorEventRegister(subscriptionKeys(new Identifier("AllCheckTransitions"), new Identifier("4"), 0L, 0L, 0L), adapter);
+            eventService.monitorEventRegister(ConnectionConsumer.subscriptionKeys(
+                    new Identifier("AllCheckTransitions"), new Identifier("4"), 0L, 0L, 0L), adapter);
         } catch (MALInteractionException ex) {
             Logger.getLogger(CheckLinkMonitorManager.class.getName()).log(Level.SEVERE, null, ex);
         } catch (MALException ex) {
@@ -150,30 +147,5 @@ public class CheckLinkMonitorManager {
         }
     }
 
-    /**
-     *
-     * Returns a subscription object with the entity keys field set as the
-     * provided keys
-     *
-     * @param subId Identifier of the subscription
-     * @param key1 First key - event object number
-     * @param key2 Second key - the area, service, and version ObjectType fields
-     * as a MAL::Long
-     * @param key3 Third key - the event object instance identifier.
-     * @param key4 Fourth key - the area, service, version and number fields of
-     * the event source ObjectType
-     * @return The subscription object
-     */
-    private Subscription subscriptionKeys(Identifier subId, Identifier key1, Long key2, Long key3, Long key4) {
-        final EntityKeyList entityKeys = new EntityKeyList();
-        final EntityKey entitykey = new EntityKey(key1, key2, key3, key4);
-        entityKeys.add(entitykey);
-
-        final EntityRequest entity = new EntityRequest(null, false, false, false, false, entityKeys);
-        final EntityRequestList entities = new EntityRequestList();
-        entities.add(entity);
-
-        return new Subscription(subId, entities);
-    }
 
 }

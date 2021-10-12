@@ -44,6 +44,7 @@ import org.ccsds.moims.mo.mal.MALContextFactory;
 import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALHelper;
 import org.ccsds.moims.mo.mal.MALInteractionException;
+import org.ccsds.moims.mo.mal.helpertools.connections.ConnectionConsumer;
 import org.ccsds.moims.mo.mal.provider.MALInteraction;
 import org.ccsds.moims.mo.mal.provider.MALProvider;
 import org.ccsds.moims.mo.mal.provider.MALPublishInteractionListener;
@@ -54,12 +55,15 @@ import org.ccsds.moims.mo.mal.structures.EntityKeyList;
 import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.IdentifierList;
 import org.ccsds.moims.mo.mal.structures.LongList;
+import org.ccsds.moims.mo.mal.structures.NamedValue;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.QoSLevel;
 import org.ccsds.moims.mo.mal.structures.SessionType;
 import org.ccsds.moims.mo.mal.structures.Time;
 import org.ccsds.moims.mo.mal.structures.UInteger;
 import org.ccsds.moims.mo.mal.structures.UIntegerList;
 import org.ccsds.moims.mo.mal.structures.URI;
+import org.ccsds.moims.mo.mal.structures.Union;
 import org.ccsds.moims.mo.mal.structures.UpdateHeader;
 import org.ccsds.moims.mo.mal.structures.UpdateHeaderList;
 import org.ccsds.moims.mo.mal.structures.UpdateType;
@@ -262,8 +266,13 @@ public class EventProviderServiceImpl extends EventInheritanceSkeleton {
         try {
             synchronized (lock) {
                 if (!isRegistered) {
+                    NamedValueList subkeys = new NamedValueList();
+                    subkeys.add(new NamedValue(new Identifier("key1"), new Identifier("*")));
+                    subkeys.add(new NamedValue(new Identifier("key2"), new Union(0L)));
+                    subkeys.add(new NamedValue(new Identifier("key3"), new Union(0L)));
+                    subkeys.add(new NamedValue(new Identifier("key4"), new Union(0L)));
                     final EntityKeyList lst = new EntityKeyList();
-                    lst.add(new EntityKey(new Identifier("*"), 0L, 0L, 0L));
+                    lst.add(new EntityKey(subkeys));
                     publisher.register(lst, new PublishInteractionListener());
                     isRegistered = true;
                 }
@@ -278,11 +287,19 @@ public class EventProviderServiceImpl extends EventInheritanceSkeleton {
 
             final Long subKey = (source != null) ? HelperCOM.generateSubKey(source.getType()) : null;
             // requirements: 3.3.4.2.1 , 3.3.4.2.2 , 3.3.4.2.3 , 3.3.4.2.4
+            /*
             final EntityKey ekey = new EntityKey(
                     new Identifier(objType.getNumber().toString()),
                     secondEntityKey,
                     objId,
                     subKey);
+            */
+            NamedValueList subkeys = new NamedValueList();
+            subkeys.add(new NamedValue(new Identifier("key1"), new Identifier(objType.getNumber().toString())));
+            subkeys.add(new NamedValue(new Identifier("key2"), new Union(secondEntityKey)));
+            subkeys.add(new NamedValue(new Identifier("key3"), new Union(objId)));
+            subkeys.add(new NamedValue(new Identifier("key4"), new Union(subKey)));
+            final EntityKey ekey = new EntityKey(subkeys);
 
             final Time timestamp = HelperTime.getTimestampMillis(); //  requirement: 3.3.4.2.7
 
@@ -339,7 +356,7 @@ public class EventProviderServiceImpl extends EventInheritanceSkeleton {
             synchronized (lock) {
                 if (!isRegistered) {
                     final EntityKeyList lst = new EntityKeyList();
-                    lst.add(new EntityKey(new Identifier("*"), 0L, 0L, 0L));
+                    lst.add(ConnectionConsumer.entityKeyWildcard());
                     publisher.register(lst, new PublishInteractionListener());
                     isRegistered = true;
                 }
@@ -359,7 +376,7 @@ public class EventProviderServiceImpl extends EventInheritanceSkeleton {
 
                 final Long subKey = (sources.get(i) != null) ? HelperCOM.generateSubKey(sources.get(i).getType()) : null;
                 // requirements: 3.3.4.2.1 , 3.3.4.2.2 , 3.3.4.2.3 , 3.3.4.2.4
-                final EntityKey ekey = new EntityKey(
+                final EntityKey ekey = ConnectionConsumer.subscriptionKeys(
                         new Identifier(objType.getNumber().toString()),
                         secondEntityKey,
                         objIds.get(i),

@@ -22,6 +22,7 @@ package esa.mo.reconfigurable.service;
 
 import esa.mo.com.impl.util.COMServicesProvider;
 import esa.mo.com.impl.util.HelperArchive;
+import esa.mo.helpertools.helpers.HelperAttributes;
 import esa.mo.helpertools.helpers.HelperTime;
 import java.io.IOException;
 import java.io.Serializable;
@@ -46,6 +47,7 @@ import org.ccsds.moims.mo.mal.structures.ElementList;
 import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.IdentifierList;
 import org.ccsds.moims.mo.mal.structures.LongList;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.URI;
 import org.ccsds.moims.mo.mal.structures.UpdateHeaderList;
 import org.ccsds.moims.mo.mal.transport.MALMessageHeader;
@@ -77,7 +79,8 @@ public class ConfigurationEventAdapter extends EventAdapter implements Serializa
             ElementList objects, Map qosProperties) {
         // Notification received from the Configuration serviceImpl...
         for (int i = 0; i < objectDetailsList.size(); i++) {
-            Identifier eventObjNumber = updateHeaderList.get(i).getKey().getFirstSubKey();
+            NamedValueList subkeys = updateHeaderList.get(i).getKey().getSubkeys();
+            Identifier eventObjNumber = (Identifier) subkeys.get(0).getValue();
 
             // Check if it is a "Configuration switch Request" or a "Current Configuration Store"
             if (!eventObjNumber.toString().equals(ConfigurationHelper.CONFIGURATIONSWITCH_OBJECT_NUMBER.toString())
@@ -124,6 +127,8 @@ public class ConfigurationEventAdapter extends EventAdapter implements Serializa
                 }
             }
 
+            Long entityKey3 = (Long) HelperAttributes.attribute2JavaType(subkeys.get(2).getValue());
+            
             // -----------------------------------------------------------
             // Check if it is a "Current Configuration Store"
             if (eventObjNumber.toString().equals(ConfigurationHelper.CONFIGURATIONSTORE_OBJECT_NUMBER.toString())) {
@@ -136,7 +141,7 @@ public class ConfigurationEventAdapter extends EventAdapter implements Serializa
 
                 ArchiveDetails archiveDetails = new ArchiveDetails();
                 archiveDetails.setInstId(new Long(0));
-                archiveDetails.setDetails(new ObjectDetails(updateHeaderList.get(i).getKey().getThirdSubKey(), null));  // Event objId
+                archiveDetails.setDetails(new ObjectDetails(entityKey3, null));  // Event objId
                 archiveDetails.setNetwork(msgHeader.getNetworkZone());
                 archiveDetails.setTimestamp(HelperTime.getTimestamp());
                 archiveDetails.setProvider(msgHeader.getURIFrom());
@@ -157,13 +162,13 @@ public class ConfigurationEventAdapter extends EventAdapter implements Serializa
                     Long objId = objIds.get(0);
 
                     // Publish event: Success with the objId of the Configuration stored
-                    this.publishConfigurationStoredSuccess(objId, updateHeaderList.get(i).getKey().getThirdSubKey());
+                    this.publishConfigurationStoredSuccess(objId, entityKey3);
                 } catch (MALException ex) {
                     // Publish event: Failure with the objId of the Configuration stored
-                    this.publishConfigurationStoredFailure(updateHeaderList.get(i).getKey().getThirdSubKey());  // Event objId
+                    this.publishConfigurationStoredFailure(entityKey3);  // Event objId
                 } catch (MALInteractionException ex) {
                     // Publish event: Failure with the objId of the Configuration stored
-                    this.publishConfigurationStoredFailure(updateHeaderList.get(i).getKey().getThirdSubKey());  // Event objId
+                    this.publishConfigurationStoredFailure(entityKey3);  // Event objId
                 }
             }
         }

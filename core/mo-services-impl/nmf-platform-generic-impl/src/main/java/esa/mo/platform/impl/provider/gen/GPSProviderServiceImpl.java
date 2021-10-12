@@ -48,6 +48,7 @@ import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALHelper;
 import org.ccsds.moims.mo.mal.MALInteractionException;
 import org.ccsds.moims.mo.mal.MALStandardError;
+import org.ccsds.moims.mo.mal.helpertools.connections.ConnectionConsumer;
 import org.ccsds.moims.mo.mal.provider.MALInteraction;
 import org.ccsds.moims.mo.mal.provider.MALProvider;
 import org.ccsds.moims.mo.mal.provider.MALPublishInteractionListener;
@@ -202,7 +203,7 @@ public class GPSProviderServiceImpl extends GPSInheritanceSkeleton
       synchronized (lock) {
         if (!isRegistered) {
           final EntityKeyList lst = new EntityKeyList();
-          lst.add(new EntityKey(new Identifier("*"), 0L, 0L, 0L));
+          lst.add(ConnectionConsumer.entityKeyWildcard());
           publisher.register(lst, new PublishInteractionListener());
           isRegistered = true;
         }
@@ -215,7 +216,7 @@ public class GPSProviderServiceImpl extends GPSInheritanceSkeleton
       final URI uri = connection.getConnectionDetails().getProviderURI();
       final Long pValObjId = manager.storeAndGenerateNearbyPositionAlertId(isInside, objId, uri);
 
-      final EntityKey ekey = new EntityKey(new Identifier(manager.get(objId).getName().toString()),
+      final EntityKey ekey = ConnectionConsumer.subscriptionKeys(new Identifier(manager.get(objId).getName().toString()),
           objId, pValObjId, null);
       final Time timestamp = HelperTime.getTimestampMillis();
 

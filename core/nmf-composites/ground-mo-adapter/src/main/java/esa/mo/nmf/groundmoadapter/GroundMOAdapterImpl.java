@@ -54,6 +54,7 @@ import org.ccsds.moims.mo.mal.structures.Duration;
 import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.IdentifierList;
 import org.ccsds.moims.mo.mal.structures.LongList;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.Subscription;
 import org.ccsds.moims.mo.mal.structures.Time;
 import org.ccsds.moims.mo.mal.structures.UShort;
@@ -216,7 +217,9 @@ public class GroundMOAdapterImpl extends NMFConsumer implements SimpleCommanding
 
         if (lParameterValueList.size() == lUpdateHeaderList.size()) {
           for (int i = 0; i < lUpdateHeaderList.size(); i++) {
-            String parameterName = lUpdateHeaderList.get(i).getKey().getFirstSubKey().toString();
+            NamedValueList subkeys = lUpdateHeaderList.get(i).getKey().getSubkeys();
+            // String parameterName = lUpdateHeaderList.get(i).getKey().getFirstSubKey().toString();
+            String parameterName = HelperAttributes.attribute2string(subkeys.get(0).getValue());
             Attribute parameterValue = lParameterValueList.get(i).getRawValue();
             Serializable object;
 
@@ -292,7 +295,9 @@ public class GroundMOAdapterImpl extends NMFConsumer implements SimpleCommanding
             if (listener instanceof CompleteAggregationReceivedListener) {
               ObjectId source = lObjectIdList.get(i);
               Time timestamp = lUpdateHeaderList.get(i).getTimestamp();
-              String aggregationName = lUpdateHeaderList.get(i).getKey().getFirstSubKey().toString();
+              NamedValueList subkeys = lUpdateHeaderList.get(i).getKey().getSubkeys();
+              // String aggregationName = lUpdateHeaderList.get(i).getKey().getFirstSubKey().toString();
+              String aggregationName = HelperAttributes.attribute2string(subkeys.get(0).getValue());
               AggregationValue aggregationValue = lAggregationValueList.get(i);
 
               AggregationInstance aggregationInstance = new AggregationInstance(

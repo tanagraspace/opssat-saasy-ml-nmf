@@ -21,8 +21,6 @@
 package esa.mo.nmf.ctt.services.mc;
 
 import esa.mo.mc.impl.consumer.ParameterConsumerServiceImpl;
-import esa.mo.helpertools.connections.ConnectionConsumer;
-import esa.mo.helpertools.helpers.HelperAttributes;
 import java.awt.Color;
 import java.util.Map;
 import java.util.logging.Level;
@@ -30,7 +28,10 @@ import java.util.logging.Logger;
 import org.ccsds.moims.mo.com.structures.ObjectIdList;
 import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALInteractionException;
+import org.ccsds.moims.mo.mal.helpertools.connections.ConnectionConsumer;
+import org.ccsds.moims.mo.mal.helpertools.helpers.HelperAttributes;
 import org.ccsds.moims.mo.mal.structures.Identifier;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.Subscription;
 import org.ccsds.moims.mo.mal.structures.UInteger;
 import org.ccsds.moims.mo.mal.structures.UOctet;
@@ -104,15 +105,18 @@ public class ParameterPublishedValues extends javax.swing.JPanel {
             for (int i = 0; i < lObjectIdList.size(); i++) {
                 final UpdateHeader updateHeader = lUpdateHeaderList.get(i);
                 final ParameterValue parameterValue = lParameterValueList.get(i);
-                final String name = updateHeader.getKey().getFirstSubKey().getValue();
+                final NamedValueList subkeys = updateHeader.getKey().getSubkeys();
+                final String name = HelperAttributes.attribute2string(subkeys.get(0).getValue());
+                final Long second = (Long) HelperAttributes.attribute2JavaType(subkeys.get(1).getValue());
+                //final String name = updateHeader.getKey().getFirstSubKey().getValue();
 
                 try {
-                    final int objId = updateHeader.getKey().getSecondSubKey().intValue();
+                    final int objId = second.intValue();
 
                     final int index = (int) ((5 * numberOfColumns) * Math.floor(objId / (5)) + objId % numberOfColumns);
 
                     if ((0 <= index) && (index < labels.length)) {
-                        String nameId = "(" + String.valueOf(objId) + ") " + updateHeader.getKey().getFirstSubKey().getValue();
+                        String nameId = "(" + String.valueOf(objId) + ") " + name;
                         UOctet validityState = parameterValue.getValidityState();
                         String validity = ValidityState.fromNumericValue(new UInteger(validityState.getValue())).toString();
                         String rawValue = HelperAttributes.attribute2string(parameterValue.getRawValue());

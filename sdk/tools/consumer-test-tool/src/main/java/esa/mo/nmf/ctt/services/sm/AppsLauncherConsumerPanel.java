@@ -32,10 +32,12 @@ import javax.swing.JOptionPane;
 import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALInteractionException;
 import org.ccsds.moims.mo.mal.MALStandardError;
+import org.ccsds.moims.mo.mal.helpertools.helpers.HelperAttributes;
 import org.ccsds.moims.mo.mal.structures.BooleanList;
 import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.IdentifierList;
 import org.ccsds.moims.mo.mal.structures.LongList;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.Subscription;
 import org.ccsds.moims.mo.mal.structures.UpdateHeader;
 import org.ccsds.moims.mo.mal.transport.MALMessageHeader;
@@ -349,8 +351,9 @@ public class AppsLauncherConsumerPanel extends javax.swing.JPanel
       for (int i = 0; i < updateHeaderList.size(); i++) {
         final String out = outputStream.get(i);
         final UpdateHeader updateHeader = updateHeaderList.get(i);
-
-        StringBuffer stringBuf = outputBuffers.get(updateHeader.getKey().getSecondSubKey());
+        final NamedValueList subkeys = updateHeader.getKey().getSubkeys();
+        final long id = (long) HelperAttributes.attribute2JavaType(subkeys.get(1).getValue());
+        StringBuffer stringBuf = outputBuffers.get(id);
         stringBuf.append(out);
         appVerboseTextArea.append(out);
         appVerboseTextArea.setCaretPosition(appVerboseTextArea.getDocument().getLength());

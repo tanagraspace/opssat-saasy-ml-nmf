@@ -37,11 +37,14 @@ import org.ccsds.moims.mo.mal.structures.EntityRequest;
 import org.ccsds.moims.mo.mal.structures.EntityRequestList;
 import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.IdentifierList;
+import org.ccsds.moims.mo.mal.structures.NamedValue;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.QoSLevel;
 import org.ccsds.moims.mo.mal.structures.QoSLevelList;
 import org.ccsds.moims.mo.mal.structures.Subscription;
 import org.ccsds.moims.mo.mal.structures.UInteger;
 import org.ccsds.moims.mo.mal.structures.URI;
+import org.ccsds.moims.mo.mal.structures.Union;
 
 /**
  * The class responsible for starting the MAL layer and takes care of
@@ -271,7 +274,12 @@ public class ConnectionConsumer {
     public static Subscription subscriptionKeys(final Identifier key1,
             final Long key2, final Long key3, final Long key4) {
         final Identifier subscriptionId = new Identifier("SUB");
-        return ConnectionConsumer.subscriptionKeys(subscriptionId, key1, key2, key3, key4);
+        NamedValueList subkeys = new NamedValueList();
+        subkeys.add(new NamedValue(new Identifier("key1"), key1));
+        subkeys.add(new NamedValue(new Identifier("key2"), new Union(key2)));
+        subkeys.add(new NamedValue(new Identifier("key3"), new Union(key3)));
+        subkeys.add(new NamedValue(new Identifier("key4"), new Union(key4)));
+        return ConnectionConsumer.subscriptionKeys(subscriptionId, subkeys);
     }
 
     /**
@@ -283,7 +291,7 @@ public class ConnectionConsumer {
      */
     public static Subscription subscriptionWildcard(final Identifier subscriptionId) {
         final EntityKeyList entityKeys = new EntityKeyList();
-        final EntityKey entitykey = new EntityKey(new Identifier("*"), 0L, 0L, 0L);
+        final EntityKey entitykey = new EntityKey(new NamedValueList());
         entityKeys.add(entitykey);
 
         final EntityRequest entity = new EntityRequest(
@@ -306,9 +314,9 @@ public class ConnectionConsumer {
      * @return The subscription object
      */
     public static Subscription subscriptionKeys(final Identifier subscriptionId,
-            final Identifier key1, final Long key2, final Long key3, final Long key4) {
+            NamedValueList subkeys) {
         final EntityKeyList entityKeys = new EntityKeyList();
-        final EntityKey entitykey = new EntityKey(key1, key2, key3, key4);
+        final EntityKey entitykey = new EntityKey(subkeys);
         entityKeys.add(entitykey);
 
         final EntityRequest entity = new EntityRequest(

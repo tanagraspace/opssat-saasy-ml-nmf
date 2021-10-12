@@ -51,6 +51,7 @@ import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALHelper;
 import org.ccsds.moims.mo.mal.MALInteractionException;
 import org.ccsds.moims.mo.mal.MALStandardError;
+import org.ccsds.moims.mo.mal.helpertools.connections.ConnectionConsumer;
 import org.ccsds.moims.mo.mal.provider.MALInteraction;
 import org.ccsds.moims.mo.mal.provider.MALProvider;
 import org.ccsds.moims.mo.mal.provider.MALPublishInteractionListener;
@@ -61,11 +62,14 @@ import org.ccsds.moims.mo.mal.structures.EntityKeyList;
 import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.IdentifierList;
 import org.ccsds.moims.mo.mal.structures.LongList;
+import org.ccsds.moims.mo.mal.structures.NamedValue;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.QoSLevel;
 import org.ccsds.moims.mo.mal.structures.SessionType;
 import org.ccsds.moims.mo.mal.structures.Time;
 import org.ccsds.moims.mo.mal.structures.UInteger;
 import org.ccsds.moims.mo.mal.structures.UIntegerList;
+import org.ccsds.moims.mo.mal.structures.Union;
 import org.ccsds.moims.mo.mal.structures.UpdateHeader;
 import org.ccsds.moims.mo.mal.structures.UpdateHeaderList;
 import org.ccsds.moims.mo.mal.structures.UpdateType;
@@ -145,7 +149,8 @@ public class AggregationProviderServiceImpl extends AggregationInheritanceSkelet
             connection.closeAll();
         }
 
-        aggregationServiceProvider = connection.startService(AggregationHelper.AGGREGATION_SERVICE_NAME.toString(), AggregationHelper.AGGREGATION_SERVICE, this);
+        aggregationServiceProvider = connection.startService(AggregationHelper.AGGREGATION_SERVICE_NAME.toString(), 
+                AggregationHelper.AGGREGATION_SERVICE, this);
 
         running = true;
         manager = new AggregationManager(comServices, parameterManager);
@@ -174,7 +179,8 @@ public class AggregationProviderServiceImpl extends AggregationInheritanceSkelet
             connection.closeAll();
             running = false;
         } catch (MALException ex) {
-            Logger.getLogger(AggregationProviderServiceImpl.class.getName()).log(Level.WARNING, "Exception during close down of the provider {0}", ex);
+            Logger.getLogger(AggregationProviderServiceImpl.class.getName()).log(
+                    Level.WARNING, "Exception during close down of the provider {0}", ex);
         }
     }
 
@@ -210,7 +216,7 @@ public class AggregationProviderServiceImpl extends AggregationInheritanceSkelet
             synchronized (lock) {
                 if (!isRegistered) {
                     final EntityKeyList lst = new EntityKeyList();
-                    lst.add(new EntityKey(new Identifier("*"), 0L, 0L, 0L));
+                    lst.add(ConnectionConsumer.entityKeyWildcard());
                     publisher.register(lst, new PublishInteractionListener());
                     isRegistered = true;
                 }
@@ -234,7 +240,12 @@ public class AggregationProviderServiceImpl extends AggregationInheritanceSkelet
                 HelperTime.timeToFineTime(time));
 
             // requirements: 3.7.7.2.a , 3.7.7.2.b , 3.7.7.2.c , 3.7.7.2.d
-            final EntityKey ekey = new EntityKey(new Identifier(manager.getName(identityId).toString()), identityId, definitionId, aValObjId);
+            NamedValueList subkeys = new NamedValueList();
+            subkeys.add(new NamedValue(new Identifier("key1"), new Identifier(manager.getName(identityId).toString())));
+            subkeys.add(new NamedValue(new Identifier("key2"), new Union(identityId)));
+            subkeys.add(new NamedValue(new Identifier("key3"), new Union(definitionId)));
+            subkeys.add(new NamedValue(new Identifier("key4"), new Union(aValObjId)));
+            final EntityKey ekey = new EntityKey(subkeys);
 
             final UpdateHeaderList hdrlst = new UpdateHeaderList(1);
             final ObjectIdList objectIdlst = new ObjectIdList(1);
@@ -246,13 +257,16 @@ public class AggregationProviderServiceImpl extends AggregationInheritanceSkelet
 
             publisher.publish(hdrlst, objectIdlst, aValLst);
         } catch (IllegalArgumentException ex) {
-            Logger.getLogger(AggregationProviderServiceImpl.class.getName()).log(Level.WARNING, "Exception during publishing process on the provider {0}", ex);
+            Logger.getLogger(AggregationProviderServiceImpl.class.getName()).log(Level.WARNING, 
+                    "Exception during publishing process on the provider {0}", ex);
             return false;
         } catch (MALException ex) {
-            Logger.getLogger(AggregationProviderServiceImpl.class.getName()).log(Level.WARNING, "Exception during publishing process on the provider {0}", ex);
+            Logger.getLogger(AggregationProviderServiceImpl.class.getName()).log(Level.WARNING, 
+                    "Exception during publishing process on the provider {0}", ex);
             return false;
         } catch (MALInteractionException ex) {
-            Logger.getLogger(AggregationProviderServiceImpl.class.getName()).log(Level.WARNING, "Exception during publishing process on the provider {0}", ex);
+            Logger.getLogger(AggregationProviderServiceImpl.class.getName()).log(Level.WARNING, 
+                    "Exception during publishing process on the provider {0}", ex);
             return false;
         }
 
@@ -281,7 +295,8 @@ public class AggregationProviderServiceImpl extends AggregationInheritanceSkelet
     }
 
     @Override
-    public AggregationValueDetailsList getValue(final LongList inIdentityIds, final MALInteraction interaction) throws MALException, MALInteractionException { // requirement 3.7.6.2.1
+    public AggregationValueDetailsList getValue(final LongList inIdentityIds, final MALInteraction interaction) 
+            throws MALException, MALInteractionException { // requirement 3.7.6.2.1
         UIntegerList unkIndexList = new UIntegerList();
 
         if (null == inIdentityIds) { // Is the input null?
@@ -393,7 +408,8 @@ public class AggregationProviderServiceImpl extends AggregationInheritanceSkelet
         // requirement: 3.7.9.2.i (This part of the code is not reached if an error is thrown)
         for (int index = 0; index < objIdToBeEnabled.size(); index++) {
             // requirement: 3.7.3.c, 3.7.9.2.f and 3.7.9.2.j, k
-            Long out = manager.setGenerationEnabled(objIdToBeEnabled.get(index), valueToBeEnabled.get(index), source, connection.getConnectionDetails());
+            Long out = manager.setGenerationEnabled(objIdToBeEnabled.get(index), 
+                    valueToBeEnabled.get(index), source, connection.getConnectionDetails());
             output.add(out);
             
             //requirement: 3.7.9.2.e, l
@@ -477,7 +493,8 @@ public class AggregationProviderServiceImpl extends AggregationInheritanceSkelet
         // requirement: 3.7.10.2.i (This part of the code is not reached if an error is thrown)
         for (int index = 0; index < objIdToBeEnabled.size(); index++) {
             // requirement: 3.7.3.d, e, f; 3.7.10.2.f and 3.7.1.2.j, k
-            boolean changed = manager.setFilterEnabled(objIdToBeEnabled.get(index), valueToBeEnabled.get(index), source, connection.getConnectionDetails());
+            boolean changed = manager.setFilterEnabled(objIdToBeEnabled.get(index), 
+                    valueToBeEnabled.get(index), source, connection.getConnectionDetails());
             //requirement: 3.7.10.2.e //periodic managers must be refreshed, as the change of the filterEnabled-value creates a new Definition object
             if (changed) {
                 periodicReportingManager.refresh(objIdToBeEnabled.get(index));
@@ -491,7 +508,8 @@ public class AggregationProviderServiceImpl extends AggregationInheritanceSkelet
     }
 
     @Override
-    public ObjectInstancePairList listDefinition(final IdentifierList nameList, final MALInteraction interaction) throws MALException, MALInteractionException { // requirement: 3.7.9.2.1
+    public ObjectInstancePairList listDefinition(final IdentifierList nameList, final MALInteraction interaction) 
+            throws MALException, MALInteractionException { // requirement: 3.7.9.2.1
         ObjectInstancePairList outLongLst = new ObjectInstancePairList();
         UIntegerList unkIndexList = new UIntegerList();
 

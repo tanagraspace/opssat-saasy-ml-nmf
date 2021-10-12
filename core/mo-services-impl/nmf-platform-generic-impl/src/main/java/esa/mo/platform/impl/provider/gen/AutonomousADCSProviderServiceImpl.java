@@ -37,6 +37,7 @@ import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALHelper;
 import org.ccsds.moims.mo.mal.MALInteractionException;
 import org.ccsds.moims.mo.mal.MALStandardError;
+import org.ccsds.moims.mo.mal.helpertools.connections.ConnectionConsumer;
 import org.ccsds.moims.mo.mal.provider.MALInteraction;
 import org.ccsds.moims.mo.mal.provider.MALProvider;
 import org.ccsds.moims.mo.mal.provider.MALPublishInteractionListener;
@@ -44,7 +45,6 @@ import org.ccsds.moims.mo.mal.structures.Duration;
 import org.ccsds.moims.mo.mal.structures.DurationList;
 import org.ccsds.moims.mo.mal.structures.EntityKey;
 import org.ccsds.moims.mo.mal.structures.EntityKeyList;
-import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.QoSLevel;
 import org.ccsds.moims.mo.mal.structures.SessionType;
 import org.ccsds.moims.mo.mal.structures.Time;
@@ -174,7 +174,7 @@ public class AutonomousADCSProviderServiceImpl extends AutonomousADCSInheritance
     synchronized (lock) {
       if (!isRegistered) {
         final EntityKeyList lst = new EntityKeyList();
-        lst.add(new EntityKey(new Identifier("*"), 0L, 0L, 0L));
+        lst.add(ConnectionConsumer.entityKeyWildcard());
         try {
           publisher.register(lst, new PublishInteractionListener());
         } catch (IllegalArgumentException | MALException | MALInteractionException ex) {
@@ -211,7 +211,7 @@ public class AutonomousADCSProviderServiceImpl extends AutonomousADCSInheritance
       final DurationList durationList = new DurationList();
       durationList.add(getAttitudeControlRemainingDuration());
 
-      final EntityKey ekey = new EntityKey(null, null, null, null);
+      final EntityKey ekey = ConnectionConsumer.subscriptionKeys(null, null, null, null);
       final Time timestamp = HelperTime.getTimestampMillis();
       final UpdateHeaderList hdrlst = new UpdateHeaderList();
       hdrlst.add(new UpdateHeader(timestamp, connection.getConnectionDetails().getProviderURI(),

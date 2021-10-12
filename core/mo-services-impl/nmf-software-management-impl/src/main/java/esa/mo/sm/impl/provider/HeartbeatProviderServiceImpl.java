@@ -32,6 +32,7 @@ import org.ccsds.moims.mo.mal.MALContextFactory;
 import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALHelper;
 import org.ccsds.moims.mo.mal.MALInteractionException;
+import org.ccsds.moims.mo.mal.helpertools.connections.ConnectionConsumer;
 import org.ccsds.moims.mo.mal.provider.MALInteraction;
 import org.ccsds.moims.mo.mal.provider.MALProvider;
 import org.ccsds.moims.mo.mal.provider.MALPublishInteractionListener;
@@ -39,9 +40,12 @@ import org.ccsds.moims.mo.mal.structures.Duration;
 import org.ccsds.moims.mo.mal.structures.EntityKey;
 import org.ccsds.moims.mo.mal.structures.EntityKeyList;
 import org.ccsds.moims.mo.mal.structures.Identifier;
+import org.ccsds.moims.mo.mal.structures.NamedValue;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.QoSLevel;
 import org.ccsds.moims.mo.mal.structures.SessionType;
 import org.ccsds.moims.mo.mal.structures.UInteger;
+import org.ccsds.moims.mo.mal.structures.Union;
 import org.ccsds.moims.mo.mal.structures.UpdateHeader;
 import org.ccsds.moims.mo.mal.structures.UpdateHeaderList;
 import org.ccsds.moims.mo.mal.structures.UpdateType;
@@ -152,19 +156,22 @@ public class HeartbeatProviderServiceImpl extends HeartbeatInheritanceSkeleton
       synchronized (lock) {
         if (!isRegistered) {
           final EntityKeyList lst = new EntityKeyList();
-          lst.add(new EntityKey(new Identifier("*"), 0L, 0L, 0L));
+          lst.add(ConnectionConsumer.entityKeyWildcard());
           publisher.register(lst, new PublishInteractionListener());
           isRegistered = true;
         }
       }
 
+      NamedValueList subkeys = new NamedValueList();
+      final EntityKey ekey = new EntityKey(subkeys);
+      
       final UpdateHeaderList hdrlst = new UpdateHeaderList(1);
       hdrlst.add(
           new UpdateHeader(
               HelperTime.getTimestampMillis(),
               connection.getConnectionDetails().getProviderURI(),
               UpdateType.UPDATE,
-              new EntityKey(null, null, null, null)
+              ekey
           )
       );
 

@@ -37,6 +37,7 @@ import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALHelper;
 import org.ccsds.moims.mo.mal.MALInteractionException;
 import org.ccsds.moims.mo.mal.MALStandardError;
+import org.ccsds.moims.mo.mal.helpertools.connections.ConnectionConsumer;
 import org.ccsds.moims.mo.mal.provider.MALInteraction;
 import org.ccsds.moims.mo.mal.provider.MALProvider;
 import org.ccsds.moims.mo.mal.provider.MALPublishInteractionListener;
@@ -171,7 +172,7 @@ public class CameraProviderServiceImpl extends CameraInheritanceSkeleton
       synchronized (lock) {
         if (!isRegistered) {
           final EntityKeyList lst = new EntityKeyList();
-          lst.add(new EntityKey(new Identifier("*"), 0L, 0L, 0L));
+          lst.add(ConnectionConsumer.entityKeyWildcard());
           publisher.register(lst, new PublishInteractionListener());
           isRegistered = true;
         }
@@ -186,7 +187,8 @@ public class CameraProviderServiceImpl extends CameraInheritanceSkeleton
 
       LOGGER.log(Level.FINER, "Generating streaming Picture update with objId: {0}", objId);
 
-      final EntityKey ekey = new EntityKey(firstEntityKey, objId,
+      final EntityKey ekey = ConnectionConsumer.subscriptionKeys(
+              firstEntityKey, objId,
           settings.getResolution().getWidth().getValue(),
           settings.getResolution().getHeight().getValue());
 

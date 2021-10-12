@@ -11,9 +11,12 @@ import org.ccsds.moims.mo.com.activitytracking.structures.ActivityExecution;
 import org.ccsds.moims.mo.com.activitytracking.structures.ActivityTransfer;
 import org.ccsds.moims.mo.com.activitytracking.structures.OperationActivity;
 import org.ccsds.moims.mo.com.structures.ObjectType;
+import org.ccsds.moims.mo.mal.helpertools.helpers.HelperAttributes;
 import org.ccsds.moims.mo.mal.structures.Attribute;
 import org.ccsds.moims.mo.mal.structures.EntityKey;
 import org.ccsds.moims.mo.mal.structures.Identifier;
+import org.ccsds.moims.mo.mal.structures.NamedValue;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.UInteger;
 import org.ccsds.moims.mo.mal.structures.ULong;
 import org.ccsds.moims.mo.mal.structures.UOctet;
@@ -56,7 +59,7 @@ public class MCServicesHelper {
     public static final long ALL_ID_NUM = 0L;
     public static final Identifier ALL_ID_STR = new Identifier("*");
     public static final Identifier EMPTY_ID_STR = new Identifier("");
-
+    
     public static final int ALERT_IDENTITY_OBJECT_NUMBER = 1;
     public static final int ALERT_DEFINITION_OBJECT_NUMBER = 2;
     public static final int ALERT_EVENT_OBJECT_NUMBER = 3;
@@ -328,7 +331,7 @@ public class MCServicesHelper {
                     AggregationDefinitionDetails.SERVICE_SHORT_FORM,
                     AggregationDefinitionDetails.AREA_VERSION,
                     new UShort(AGGREGATION_VALUE_INSTANCE_OBJECT_NUMBER));
-    
+
     // For the tests:
     // The object number for the alert handler
     //public static final UShort ALERT_HANDLER_OBJECT_NUMBER = new UShort(4000);
@@ -400,12 +403,19 @@ public class MCServicesHelper {
      */
     static public EntityKey generateEntityKey(ObjectType objectType, long instanceNumber,
             ObjectType sourceObjectType) {
+        /*
         return new EntityKey(
                 new Identifier(String.valueOf(objectType.getNumber())),
                 MCServicesHelper.generateSubKey(objectType, false),
                 instanceNumber,
                 MCServicesHelper.generateSubKey(sourceObjectType, true));
-
+        */
+        NamedValueList subkeys = new NamedValueList();
+        subkeys.add(new NamedValue(new Identifier("key1"), new Identifier(String.valueOf(objectType.getNumber()))));
+        subkeys.add(new NamedValue(new Identifier("key2"), new Union(MCServicesHelper.generateSubKey(objectType, false))));
+        subkeys.add(new NamedValue(new Identifier("key3"), new Union((Long) instanceNumber)));
+        subkeys.add(new NamedValue(new Identifier("key4"), new Union(MCServicesHelper.generateSubKey(sourceObjectType, true))));
+        return new EntityKey(subkeys);
     }
 
     public static class KeyParts {
@@ -417,16 +427,20 @@ public class MCServicesHelper {
 
     static public void getValuesFromEntityKey(EntityKey key, KeyParts keyParts) {
         // Get the area/service/version from the second sub key
-        generateObjectTypeFromSubKey(keyParts.objectType, key.getSecondSubKey());
+        NamedValueList subkeys = key.getSubkeys();
+        //generateObjectTypeFromSubKey(keyParts.objectType, key.getSecondSubKey());
+        generateObjectTypeFromSubKey(keyParts.objectType, 
+                (Long) HelperAttributes.attribute2JavaType(subkeys.get(1).getValue()));
         // Add object number from first subkey
-        keyParts.objectType.setNumber(
-                new UShort(Integer.parseInt(key.getFirstSubKey().toString())));
+        String key1 = ((Identifier) subkeys.get(0).getValue()).getValue();
+        keyParts.objectType.setNumber(new UShort(Integer.parseInt(key1)));
 
         // Instance number is 3rd
-        keyParts.objectInstance = key.getThirdSubKey();
+        keyParts.objectInstance = (Long) HelperAttributes.attribute2JavaType(subkeys.get(2).getValue());
 
         // Source object is all from the 4th
-        generateObjectTypeFromSubKey(keyParts.sourceObjectType, key.getFourthSubKey());
+        generateObjectTypeFromSubKey(keyParts.sourceObjectType, 
+                (Long) HelperAttributes.attribute2JavaType(subkeys.get(3).getValue()));
     }
 
 //  static public Long generateSubKey(Element object, int objectNumber)

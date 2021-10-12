@@ -35,13 +35,13 @@ import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALHelper;
 import org.ccsds.moims.mo.mal.MALInteractionException;
 import org.ccsds.moims.mo.mal.MALStandardError;
+import org.ccsds.moims.mo.mal.helpertools.connections.ConnectionConsumer;
 import org.ccsds.moims.mo.mal.provider.MALInteraction;
 import org.ccsds.moims.mo.mal.provider.MALProvider;
 import org.ccsds.moims.mo.mal.provider.MALPublishInteractionListener;
 import org.ccsds.moims.mo.mal.structures.Duration;
 import org.ccsds.moims.mo.mal.structures.EntityKey;
 import org.ccsds.moims.mo.mal.structures.EntityKeyList;
-import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.QoSLevel;
 import org.ccsds.moims.mo.mal.structures.SessionType;
 import org.ccsds.moims.mo.mal.structures.UInteger;
@@ -156,7 +156,7 @@ public class SoftwareDefinedRadioProviderServiceImpl extends SoftwareDefinedRadi
       synchronized (lock) {
         if (!isRegistered) {
           final EntityKeyList lst = new EntityKeyList();
-          lst.add(new EntityKey(new Identifier("*"), 0L, 0L, 0L));
+          lst.add(ConnectionConsumer.entityKeyWildcard());
           publisher.register(lst, new PublishInteractionListener());
           isRegistered = true;
         }
@@ -171,7 +171,7 @@ public class SoftwareDefinedRadioProviderServiceImpl extends SoftwareDefinedRadi
       Logger.getLogger(SoftwareDefinedRadioProviderServiceImpl.class.getName()).log(Level.FINER,
           "Generating streaming Radio update with objId: " + objId);
 
-      final EntityKey ekey = new EntityKey(null, null, null, null);
+      final EntityKey ekey = ConnectionConsumer.subscriptionKeys(null, null, null, null);
       final UpdateHeaderList hdrlst = new UpdateHeaderList();
       hdrlst.add(new UpdateHeader(HelperTime.getTimestampMillis(),
           connection.getConnectionDetails().getProviderURI(), UpdateType.UPDATE, ekey));

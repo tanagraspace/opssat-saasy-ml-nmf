@@ -51,6 +51,7 @@ import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALHelper;
 import org.ccsds.moims.mo.mal.MALInteractionException;
 import org.ccsds.moims.mo.mal.MALStandardError;
+import org.ccsds.moims.mo.mal.helpertools.connections.ConnectionConsumer;
 import org.ccsds.moims.mo.mal.provider.MALInteraction;
 import org.ccsds.moims.mo.mal.provider.MALProvider;
 import org.ccsds.moims.mo.mal.provider.MALPublishInteractionListener;
@@ -64,6 +65,8 @@ import org.ccsds.moims.mo.mal.structures.FineTimeList;
 import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.IdentifierList;
 import org.ccsds.moims.mo.mal.structures.LongList;
+import org.ccsds.moims.mo.mal.structures.NamedValue;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.QoSLevel;
 import org.ccsds.moims.mo.mal.structures.SessionType;
 import org.ccsds.moims.mo.mal.structures.Time;
@@ -956,7 +959,7 @@ public class ParameterProviderServiceImpl extends ParameterInheritanceSkeleton i
             synchronized (lock) {
                 if (!isRegistered) {
                     final EntityKeyList lst = new EntityKeyList();
-                    lst.add(new EntityKey(new Identifier("*"), 0L, 0L, 0L));
+                    lst.add(ConnectionConsumer.entityKeyWildcard());
                     publisher.register(lst, new PublishInteractionListener());
                     isRegistered = true;
                 }
@@ -1058,10 +1061,15 @@ public class ParameterProviderServiceImpl extends ParameterInheritanceSkeleton i
 
             for (int i = 0; i < parameterInstances.size(); i++) {
                 //  requirements: 3.3.7.2.a , 3.3.7.2.b , 3.3.7.2.c , 3.3.7.2.d 
+                /*
                 final EntityKey ekey = new EntityKey(new Identifier(manager.getName(outIds.get(i).getObjIdentityInstanceId()).toString()),
                         outIds.get(i).getObjIdentityInstanceId(), outIds.get(i).getObjDefInstanceId(), pValObjIds.get(i));
+                */
+                final EntityKey ekey = ConnectionConsumer.subscriptionKeys(
+                        new Identifier(manager.getName(outIds.get(i).getObjIdentityInstanceId()).toString()),
+                        outIds.get(i).getObjIdentityInstanceId(), outIds.get(i).getObjDefInstanceId(), pValObjIds.get(i));
 
-                Time time = parameterInstances.get(i).getTimestamp();
+        Time time = parameterInstances.get(i).getTimestamp();
                 time = (time == null) ? defaultTimestamp2 : time; //  requirement: 3.3.5.2.5
 
                 //requirement: 3.3.7.2.e : timestamp must be the same as for the creation of the ParameterValue

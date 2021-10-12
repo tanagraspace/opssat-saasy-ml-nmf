@@ -45,6 +45,7 @@ import org.ccsds.moims.mo.mal.structures.Element;
 import org.ccsds.moims.mo.mal.structures.ElementList;
 import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.IdentifierList;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.Subscription;
 import org.ccsds.moims.mo.mal.structures.SubscriptionList;
 import org.ccsds.moims.mo.mal.structures.UShort;
@@ -137,11 +138,18 @@ public class EventConsumerServiceImpl extends ConsumerServiceImpl {
 
                 if (objectDetailsList.size() == lUpdateHeaderList.size()) { // Something is wrong
                     for (int i = 0; i < lUpdateHeaderList.size(); i++) {
-
+                        /*
                         Identifier entityKey1 = lUpdateHeaderList.get(i).getKey().getFirstSubKey();
                         Long entityKey2 = lUpdateHeaderList.get(i).getKey().getSecondSubKey();
                         Long entityKey3 = lUpdateHeaderList.get(i).getKey().getThirdSubKey();
                         Long entityKey4 = lUpdateHeaderList.get(i).getKey().getFourthSubKey(); // ObjType of the source
+                        */
+
+                        NamedValueList subkeys = lUpdateHeaderList.get(i).getKey().getSubkeys();
+                        Identifier entityKey1 = (Identifier) subkeys.get(0).getValue();
+                        Long entityKey2 = (Long) HelperAttributes.attribute2JavaType(subkeys.get(1).getValue());
+                        Long entityKey3 = (Long) HelperAttributes.attribute2JavaType(subkeys.get(2).getValue());
+                        Long entityKey4 = (Long) HelperAttributes.attribute2JavaType(subkeys.get(3).getValue()); // ObjType of the source
 
                         // (UShort area, UShort service, UOctet version, UShort number)
                         // (UShort area, UShort service, UOctet version, 0)

@@ -38,9 +38,11 @@ import org.ccsds.moims.mo.com.structures.ObjectIdList;
 import org.ccsds.moims.mo.com.structures.ObjectKey;
 import org.ccsds.moims.mo.mal.MALException;
 import org.ccsds.moims.mo.mal.MALInteractionException;
+import org.ccsds.moims.mo.mal.helpertools.helpers.HelperAttributes;
 import org.ccsds.moims.mo.mal.structures.Duration;
 import org.ccsds.moims.mo.mal.structures.Identifier;
 import org.ccsds.moims.mo.mal.structures.LongList;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.Subscription;
 import org.ccsds.moims.mo.mal.structures.UpdateHeader;
 import org.ccsds.moims.mo.mal.structures.UpdateHeaderList;
@@ -459,14 +461,21 @@ public class StatisticConsumerPanel extends javax.swing.JPanel {
             final long iDiff = System.currentTimeMillis() - msgHeader.getTimestamp().getValue();
 
             final UpdateHeader updateHeader = lUpdateHeaderList.get(0);
+            final NamedValueList subkeys = updateHeader.getKey().getSubkeys();
+            final String statFunctionName = HelperAttributes.attribute2string(subkeys.get(0).getValue());
+            final int statLinkObjId = (int) HelperAttributes.attribute2JavaType(subkeys.get(1).getValue());
+            final int paramObjId = (int) HelperAttributes.attribute2JavaType(subkeys.get(2).getValue());
+            /*
             final String statFunctionName = updateHeader.getKey().getFirstSubKey().getValue();
             final int statLinkObjId = updateHeader.getKey().getSecondSubKey().intValue();
             final int paramObjId = updateHeader.getKey().getThirdSubKey().intValue();
+            */
 
             try {
                 if (msgBoxOn2.isSelected() && lUpdateHeaderList.size() != 0 && _StatisticValueList3.size() != 0) {
                     String str = "";
-                    str += "Statistic Function name: " + statFunctionName + " | " + "Statistic Link id: " + statLinkObjId + " | " + "Parameter obj Id: " + paramObjId + " | " + "\n";
+                    str += "Statistic Function name: " + statFunctionName + " | " + "Statistic Link id: " 
+                            + statLinkObjId + " | " + "Parameter obj Id: " + paramObjId + " | " + "\n";
                     final StatisticValue statisticValue = _StatisticValueList3.get(0);
                     str += "startTime: " + HelperTime.time2readableString(statisticValue.getStartTime()) + "\n";
                     str += "endTime: " + HelperTime.time2readableString(statisticValue.getEndTime()) + "\n";
