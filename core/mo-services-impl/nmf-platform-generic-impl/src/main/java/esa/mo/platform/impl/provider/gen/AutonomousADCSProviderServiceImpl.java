@@ -45,6 +45,7 @@ import org.ccsds.moims.mo.mal.structures.Duration;
 import org.ccsds.moims.mo.mal.structures.DurationList;
 import org.ccsds.moims.mo.mal.structures.EntityKey;
 import org.ccsds.moims.mo.mal.structures.EntityKeyList;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.QoSLevel;
 import org.ccsds.moims.mo.mal.structures.SessionType;
 import org.ccsds.moims.mo.mal.structures.Time;
@@ -211,7 +212,7 @@ public class AutonomousADCSProviderServiceImpl extends AutonomousADCSInheritance
       final DurationList durationList = new DurationList();
       durationList.add(getAttitudeControlRemainingDuration());
 
-      final EntityKey ekey = ConnectionConsumer.subscriptionKeys(null, null, null, null);
+      final EntityKey ekey = new EntityKey(new NamedValueList());
       final Time timestamp = HelperTime.getTimestampMillis();
       final UpdateHeaderList hdrlst = new UpdateHeaderList();
       hdrlst.add(new UpdateHeader(timestamp, connection.getConnectionDetails().getProviderURI(),

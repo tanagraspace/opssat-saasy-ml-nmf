@@ -215,8 +215,6 @@ public class AppsLauncherProviderServiceImpl extends AppsLauncherInheritanceSkel
       NamedValueList subkeys = new NamedValueList();
       subkeys.add(new NamedValue(new Identifier("key1"), new Identifier(appName)));
       subkeys.add(new NamedValue(new Identifier("key2"), new Union(appObjId)));
-      subkeys.add(new NamedValue(new Identifier("key3"), new Union((Long) null)));
-      subkeys.add(new NamedValue(new Identifier("key4"), new Union((Long) null)));
       final EntityKey ekey = new EntityKey(subkeys);
       /*
       final EntityKey ekey = new EntityKey(

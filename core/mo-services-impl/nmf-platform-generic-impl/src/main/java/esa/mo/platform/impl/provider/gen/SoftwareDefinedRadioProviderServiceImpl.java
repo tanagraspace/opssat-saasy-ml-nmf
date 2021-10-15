@@ -42,6 +42,7 @@ import org.ccsds.moims.mo.mal.provider.MALPublishInteractionListener;
 import org.ccsds.moims.mo.mal.structures.Duration;
 import org.ccsds.moims.mo.mal.structures.EntityKey;
 import org.ccsds.moims.mo.mal.structures.EntityKeyList;
+import org.ccsds.moims.mo.mal.structures.NamedValueList;
 import org.ccsds.moims.mo.mal.structures.QoSLevel;
 import org.ccsds.moims.mo.mal.structures.SessionType;
 import org.ccsds.moims.mo.mal.structures.UInteger;
@@ -168,10 +169,10 @@ public class SoftwareDefinedRadioProviderServiceImpl extends SoftwareDefinedRadi
         objId = uniqueObjId.incrementAndGet();
       }
 
-      Logger.getLogger(SoftwareDefinedRadioProviderServiceImpl.class.getName()).log(Level.FINER,
-          "Generating streaming Radio update with objId: " + objId);
+      Logger.getLogger(SoftwareDefinedRadioProviderServiceImpl.class.getName()).log(
+              Level.FINER, "Generating streaming Radio update with objId: " + objId);
 
-      final EntityKey ekey = ConnectionConsumer.subscriptionKeys(null, null, null, null);
+      final EntityKey ekey = new EntityKey(new NamedValueList());
       final UpdateHeaderList hdrlst = new UpdateHeaderList();
       hdrlst.add(new UpdateHeader(HelperTime.getTimestampMillis(),
           connection.getConnectionDetails().getProviderURI(), UpdateType.UPDATE, ekey));
