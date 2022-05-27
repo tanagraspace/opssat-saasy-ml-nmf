@@ -129,12 +129,11 @@ public class ArchiveManager {
     }
 
     public synchronized void init() {
-        this.dbBackend.startBackendDatabase(this.dbProcessor);
-
         final ArchiveManager manager = this;
 
         this.dbProcessor.submitExternalTask2(() -> {
             synchronized (manager) {
+                this.dbBackend.startBackendDatabase(this.dbProcessor);
                 Logger.getLogger(ArchiveManager.class.getName()).log(Level.FINE,
                         "Initializing Fast classes!");
                 fastDomain.init();
