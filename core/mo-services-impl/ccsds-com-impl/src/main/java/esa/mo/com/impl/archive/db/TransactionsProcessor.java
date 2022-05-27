@@ -58,11 +58,6 @@ import org.ccsds.moims.mo.mal.structures.LongList;
  */
 public class TransactionsProcessor {
 
-    private static final String QUERY_SELECT_ALL
-            = "SELECT PU.objId FROM COMObjectEntity PU WHERE PU.objectTypeId=:objectTypeId AND PU.domainId=:domainId";
-
-    private static final Boolean SAFE_MODE = false;
-    private static final Class<COMObjectEntity> CLASS_ENTITY = COMObjectEntity.class;
     private final DatabaseBackend dbBackend;
 
     // This executor is responsible for the interactions with the db
@@ -84,15 +79,13 @@ public class TransactionsProcessor {
         this.sequencialStoring = new AtomicBoolean(false);
     }
 
-    public void submitExternalTask(final Runnable task) {
+    public void submitExternalTaskGeneral(final Runnable task) {
         this.sequencialStoring.set(false); // Sequential stores can no longer happen otherwise we break order
-
         generalExecutor.execute(task);
     }
 
-    public void submitExternalTask2(final Runnable task) {
+    public void submitExternalTaskDBTransactions(final Runnable task) {
         this.sequencialStoring.set(false); // Sequential stores can no longer happen otherwise we break order
-
         dbTransactionsExecutor.execute(task);
     }
 
@@ -347,7 +340,7 @@ public class TransactionsProcessor {
             Logger.getLogger(ArchiveManager.class.getName()).log(Level.SEVERE,
                     "Something went wrong...", ex);
         }
-
+        
         dbTransactionsExecutor.execute(new Runnable() {
             @Override
             public void run() {
@@ -375,12 +368,12 @@ public class TransactionsProcessor {
                     persistObjects(objs); // store
                     dbBackend.getAvailability().release();
                 }
-
-                if(publishEvents != null) {
-                  generalExecutor.submit(publishEvents);
-                }
             }
         });
+        
+        if(publishEvents != null) {
+            generalExecutor.submit(publishEvents);
+        }
     }
 
     public void remove(final Integer objTypeId, final Integer domainId,
@@ -429,12 +422,13 @@ public class TransactionsProcessor {
                 }
 
                 dbBackend.getAvailability().release();
-              if(publishEvents != null) {
-                generalExecutor.submit(publishEvents);
-              }
                 vacuum();
             }
         });
+        
+        if(publishEvents != null) {
+            generalExecutor.submit(publishEvents);
+        }
     }
 
     public void update(final ArrayList<COMObjectEntity> newObjs, final Runnable publishEvents) {
@@ -501,12 +495,12 @@ public class TransactionsProcessor {
                 }
 
                 dbBackend.getAvailability().release();
-
-              if(publishEvents != null) {
-                generalExecutor.submit(publishEvents);
-              }
             }
         });
+        
+        if(publishEvents != null) {
+            generalExecutor.submit(publishEvents);
+        }
     }
 
   private enum QueryType {

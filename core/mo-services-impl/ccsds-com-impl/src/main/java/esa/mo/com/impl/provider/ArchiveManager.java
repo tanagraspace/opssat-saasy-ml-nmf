@@ -131,7 +131,7 @@ public class ArchiveManager {
     public synchronized void init() {
         final ArchiveManager manager = this;
 
-        this.dbProcessor.submitExternalTask2(() -> {
+        this.dbProcessor.submitExternalTaskDBTransactions(() -> {
             synchronized (manager) {
                 this.dbBackend.startBackendDatabase(this.dbProcessor);
                 Logger.getLogger(ArchiveManager.class.getName()).log(Level.FINE,
