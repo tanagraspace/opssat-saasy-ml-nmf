@@ -377,6 +377,7 @@
                 <copy todir="${esa.nmf.sdk.assembly.outputdir}/home/saasy-ml">
                   <fileset dir="${basedir}/src/main/resources/space-common"/>
                   <fileset dir="${basedir}/src/main/resources/space-app-root"/>
+                  <fileset dir="${basedir}/../../../opssat-saasy-ml/conf"/>
                 </copy>
               </target>
             </configuration>
