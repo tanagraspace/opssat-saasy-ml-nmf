@@ -139,8 +139,8 @@
 
     <!-- SaaSyML-->
     <dependency>
-      <groupId>com.tanagraspace.nmf.apps</groupId>
-      <artifactId>saasy-ml</artifactId>
+      <groupId>int.esa.nmf.apps</groupId>
+      <artifactId>saasy-ml-app</artifactId>
       <version>${project.version}</version>
     </dependency>
 
@@ -377,7 +377,7 @@
                 <copy todir="${esa.nmf.sdk.assembly.outputdir}/home/saasy-ml">
                   <fileset dir="${basedir}/src/main/resources/space-common"/>
                   <fileset dir="${basedir}/src/main/resources/space-app-root"/>
-                  <fileset dir="${basedir}/../../../opssat-saasy-ml/conf"/>
+                  <fileset dir="${basedir}/../../../visionspace/opssat-saasy-ml/src/saasy-ml-app/conf"/>
                 </copy>
               </target>
             </configuration>
